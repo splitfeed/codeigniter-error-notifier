@@ -9,12 +9,13 @@ The config/error_notifier.php contains settings for the e-mail being sent and mu
 
 ## Usage
 Set up a controller something like this:
-	class Cronjob extends CI_Controller {
-		public function send_logs() {
-			$this->load->spark('error_notifier/0.0.1');
-			$this->error_notifier->send();
-		}
-	}
+
+    class Cronjob extends CI_Controller {
+        public function send_logs() {
+            $this->load->spark('error_notifier/0.0.1');
+            $this->error_notifier->send();
+        }
+    }
 
 Then visit it with a browser to make sure it works, then setup a cron job on your server to run it continuously.
 
