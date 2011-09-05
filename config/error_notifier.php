@@ -15,7 +15,7 @@
 */
 
 /**
- * Tables.
+ * Email
  **/
 $config['sender_email']	= 'user@domain.com';
 $config['sender_name']  = 'Error Notifier';
