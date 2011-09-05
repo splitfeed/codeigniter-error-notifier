@@ -22,5 +22,16 @@ $config['sender_name']  = 'Error Notifier';
 
 $config['recipient']	= 'admin@domain.com';
 
+$config['send_empty']	= true;
+
+/**
+ * Filter log messages by log level (same values as CI log_threshold config)
+ * 1 = Error Messages (including PHP errors)
+ * 2 = Debug Messages
+ * 3 = Informational Messages
+ * 4 = All Messages
+ */
+$config['log_threshold'] = 4;
+
 /* End of file error_notifier.php */
 /* Location: ./application/config/error_notifier.php */
