@@ -2,6 +2,8 @@
 class Error_Notifier {
 	//Same as in CI_Log, but those are protected and cannot be reused
 	protected $log_levels	= array('ERROR' => 1, 'DEBUG' => 2,  'INFO' => 3, 'ALL' => 4);
+	
+	protected $state_file;
 
 	/**
 	 * Set up CI and load config
@@ -9,6 +11,12 @@ class Error_Notifier {
 	public function __construct() {
 		$this->CI = &get_instance();
 		$this->CI->config->load('error_notifier', true);
+		
+		if ($this->CI->config->item('state_file', 'error_notifier')) {
+			$this->state_file = $this->CI->config->item('state_file', 'error_notifier');
+		} else {
+			$this->state_file = APPPATH.'logs/.notifier_state';
+		}
 	}
 
 	/**
@@ -18,8 +26,8 @@ class Error_Notifier {
 	 * @return int Time of last run
 	 */
 	protected function get_last_summary() {
-		if (file_exists(APPPATH."cache/error_notifier_state")) {
-			return file_get_contents(APPPATH."cache/error_notifier_state");
+		if (file_exists($this->state_file)) {
+			return file_get_contents($this->state_file);
 		} else {
 			return strtotime("-1 day");
 		}
@@ -32,7 +40,7 @@ class Error_Notifier {
 	 * @return bool Return value of file_get_contents
 	 */
 	protected function set_last_summary($date) {
-		return file_put_contents(APPPATH."cache/error_notifier_state", $date);
+		return file_put_contents($this->state_file, $date);
 	}
 
 	/**
