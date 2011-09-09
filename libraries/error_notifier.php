@@ -75,37 +75,38 @@ class Error_Notifier {
 			echo date('Y-m-d H:i:s', $current_date)."\n";
 
 			$current_log	= APPPATH.'logs/log-'.date('Y-m-d', $current_date).'.php';
+			if (file_exists($current_log)) {
+				$log	= file_get_contents($current_log);
+				$lines	= preg_split('/^([A-z0-9]+)\s-\s([0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2})/ism', $log, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-			$log	= file_get_contents($current_log);
-			$lines	= preg_split('/^([A-z0-9]+)\s-\s([0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2})/ism', $log, -1, PREG_SPLIT_DELIM_CAPTURE);
+				//Remove the PHP-tag
+				unset($lines[0]);
 
-			//Remove the PHP-tag
-			unset($lines[0]);
+				$repeat		= 0;
+				$last_line	= '';
+				$last_level	= '';
+				foreach (array_chunk($lines,3) as $line_parts) {
+					if (count($line_parts) != 3) {
+						trigger_error("Mismatch in chunk");
 
-			$repeat		= 0;
-			$last_line	= '';
-			$last_level	= '';
-			foreach (array_chunk($lines,3) as $line_parts) {
-				if (count($line_parts) != 3) {
-					trigger_error("Mismatch in chunk");
+					} elseif (strtotime($line_parts[1]) <= $now) {
+						$line_parts[2] = trim($line_parts[2]);
 
-				} elseif (strtotime($line_parts[1]) <= $now) {
-					$line_parts[2] = trim($line_parts[2]);
+						//Put all lines through filter method
+						if ($this->filter_line($line_parts)) {
+							if ($last_level == $line_parts[0] && $last_line == $line_parts[2]) {
+								$repeat++;
 
-					//Put all lines through filter method
-					if ($this->filter_line($line_parts)) {
-						if ($last_level == $line_parts[0] && $last_line == $line_parts[2]) {
-							$repeat++;
+							} else {
+								if ($repeat > 0) $log_lines[count($log_lines)-1][2] .= " [Repeated $repeat times]";
 
-						} else {
-							if ($repeat > 0) $log_lines[count($log_lines)-1][2] .= " [Repeated $repeat times]";
+								$log_lines[] = $line_parts;
+								$repeat = 0;
+							}
 
-							$log_lines[] = $line_parts;
-							$repeat = 0;
+							$last_level	= $line_parts[0];
+							$last_line	= $line_parts[2];
 						}
-
-						$last_level	= $line_parts[0];
-						$last_line	= $line_parts[2];
 					}
 				}
 			}
