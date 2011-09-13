@@ -17,6 +17,10 @@ monitoring is still functioning, but that no log entries have appeared since las
 ### log_threshold
 The equivalent of the common CI configuration entry, but here it specifies a filter to apply on the log before mailing.
 
+### state_file
+The error notifier keeps a state file with a timestamp in it to keep track of when the logs last were mailed. This file is by
+default saved in the logfolder and is named ".notifier_state".
+
 ## Usage
 Set up a controller something like this:
 
@@ -28,3 +32,20 @@ Set up a controller something like this:
 	}
 
 Then visit it with a browser to make sure it works, then setup a cron job on your server to run it continuously.
+
+
+## Changes
+### 0.0.3
+* Moved default notifier state file and made location configurable
+* Removed an error message if nothing had been logged
+
+### 0.0.2
+* Added support for filtering
+* Fixed bug in state file saving
+
+### 0.0.1
+* Initial release
+
+## Planned
+* Improved filtering
+* More readable log mails
