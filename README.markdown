@@ -21,12 +21,19 @@ The equivalent of the common CI configuration entry, but here it specifies a fil
 The error notifier keeps a state file with a timestamp in it to keep track of when the logs last were mailed. This file is by
 default saved in the logfolder and is named ".notifier_state".
 
+## colorize
+Makes the warning level colored and the "Repeated x times" a lighter gray for readability. Any suggestions here are welcome,
+readability is one of the most important aspects of these mails!
+
+## shorten_paths
+Trim the base path of CI from all paths for shorter messages. The full paths are always available in the real log file.
+
 ## Usage
 Set up a controller something like this:
 
 	class Cronjob extends CI_Controller {
 		public function send_logs() {
-			$this->load->spark('error_notifier/0.0.1');
+			$this->load->spark('error_notifier/0.0.4');
 			$this->error_notifier->send();
 		}
 	}
@@ -35,6 +42,10 @@ Then visit it with a browser to make sure it works, then setup a cron job on you
 
 
 ## Changes
+### 0.0.4
+* Added colorize option for coloring the mail
+* Added shorten_paths option for trimming base path from all errors since it's always the same anyway
+
 ### 0.0.3
 * Moved default notifier state file and made location configurable
 * Removed an error message if nothing had been logged

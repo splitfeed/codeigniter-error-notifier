@@ -2,7 +2,8 @@
 class Error_Notifier {
 	//Same as in CI_Log, but those are protected and cannot be reused
 	protected $log_levels	= array('ERROR' => 1, 'DEBUG' => 2,  'INFO' => 3, 'ALL' => 4);
-	
+	protected $level_colors	= array('ERROR' => '#b70000', 'DEBUG' => 'gray',  'INFO' => 'black');
+
 	protected $state_file;
 
 	/**
@@ -11,7 +12,7 @@ class Error_Notifier {
 	public function __construct() {
 		$this->CI = &get_instance();
 		$this->CI->config->load('error_notifier', true);
-		
+
 		if ($this->CI->config->item('state_file', 'error_notifier')) {
 			$this->state_file = $this->CI->config->item('state_file', 'error_notifier');
 		} else {
@@ -131,14 +132,40 @@ class Error_Notifier {
 	public function send() {
 		$log_lines = $this->collect_logs();
 
+		$colorize = $this->CI->config->item('colorize', 'error_notifier');
+		$shorten_paths = $this->CI->config->item('shorten_paths', 'error_notifier');
+		
 		if (!empty($log_lines)) {
-			$message = '';
 
+			$message = '';
+			$message = '<div style="display:block;padding:4px;margin:0;white-space: pre-wrap;;">';
 			foreach ($log_lines as $line) {
 				if (strlen($line[2]) > 1000) $line[2] = substr($line[2],0,1000);
 
-				$message .= '<div style="display:block;padding:4px;margin:0;border-bottom:1px solid #444;white-space: pre-wrap;;">'.$line[0].' - '.$line[1].' -'.$line[2].'</div>';
+				//Color level text
+				if ($colorize) {
+					$message .= '<span style="color:'.$this->level_colors[$line[0]].'">'.$line[0].'</span>';
+				} else {
+					$message .= $line[0];
+				}
+
+				$message .= ' '.$line[1].' '.$line[2].'<br/>';
 			}
+
+			//Make "[Repeated X times]" text a bit brighter
+			if ($colorize) {
+				$message = preg_replace('/(\[Repeated [\d]+ times\])/', '<span style="color:grey">$1</span>', $message);
+			}
+
+			//Trim out base path from URLS
+			if ($shorten_paths) {
+				$baseURL = realpath(BASEPATH."../");
+				$message = str_replace($baseURL."/", "", $message);
+			}
+
+
+
+			$message .= '</div>';
 
 
 		} elseif ($this->CI->config->item('send_empty', 'error_notifier')) {

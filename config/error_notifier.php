@@ -24,6 +24,9 @@ $config['recipient']	= 'admin@domain.com';
 
 $config['send_empty']	= true;
 
+$config['colorize']	= true;
+$config['shorten_paths']	= true;
+
 /**
  * Filter log messages by log level (same values as CI log_threshold config)
  * 1 = Error Messages (including PHP errors)
