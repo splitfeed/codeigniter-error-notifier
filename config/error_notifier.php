@@ -28,12 +28,6 @@ $config['colorize']	= true;
 $config['shorten_paths']	= true;
 
 /**
- * If you want to use postmark as email gateway set true
- * You should have postmark spark working on your app.
- */
-$config['postmark']    = true;
-
-/**
  * Filter log messages by log level (same values as CI log_threshold config)
  * 1 = Error Messages (including PHP errors)
  * 2 = Debug Messages

@@ -38,16 +38,6 @@ Set up a controller something like this:
 		}
 	}
 
-Using with postmark spark:
-
-    class Cronjob extends CI_Controller {
-        public function send_logs() {
-            $this->load->spark('error_notifier/0.0.4');
-            $this->load->spark('postmark/1.0.2');
-            $this->error_notifier->send();
-        }
-    }
-
 Then visit it with a browser to make sure it works, then setup a cron job on your server to run it continuously.
 
 
