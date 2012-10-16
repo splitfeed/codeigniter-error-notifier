@@ -170,6 +170,8 @@ class Error_Notifier {
 
 		} elseif ($this->CI->config->item('send_empty', 'error_notifier')) {
 			$message = 'No new matched log entries collected';
+		} else {
+			$message = false;
 		}
 
 		if ($message) {
