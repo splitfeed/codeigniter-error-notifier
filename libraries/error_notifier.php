@@ -134,10 +134,11 @@ class Error_Notifier {
 
 		$colorize = $this->CI->config->item('colorize', 'error_notifier');
 		$shorten_paths = $this->CI->config->item('shorten_paths', 'error_notifier');
+		$message = '';
 		
 		if (!empty($log_lines)) {
 
-			$message = '';
+			
 			$message = '<div style="display:block;padding:4px;margin:0;white-space: pre-wrap;;">';
 			foreach ($log_lines as $line) {
 				if (strlen($line[2]) > 1000) $line[2] = substr($line[2],0,1000);
@@ -173,19 +174,34 @@ class Error_Notifier {
 		}
 
 		if ($message) {
-			$this->CI->load->library('email');
-
 			$sender_email	= $this->CI->config->item('sender_email', 'error_notifier');
 			$sender_name	= $this->CI->config->item('sender_name', 'error_notifier');
 			$recipient		= $this->CI->config->item('recipient', 'error_notifier');
 
-			$this->CI->email->from($sender_email, $sender_name);
-			$this->CI->email->to($recipient);
+			if($this->CI->config->item('postmark', 'error_notifier')) {
+				
+				$this->CI->postmark->initialize(array( 'mailtype' => 'html' ));
 
-			$this->CI->email->subject("Log harvest of ".base_url());
-			$this->CI->email->message($message);
+				$this->CI->postmark->from($sender_email, $sender_name);
+				$this->CI->postmark->to($recipient);
 
-			$this->CI->email->send();
+				$this->CI->postmark->subject("Log harvest of ".base_url());
+				$this->CI->postmark->message($message);
+
+				$this->CI->postmark->send();
+			
+			} else {
+
+				$this->CI->load->library('email');
+
+				$this->CI->email->from($sender_email, $sender_name);
+				$this->CI->email->to($recipient);
+
+				$this->CI->email->subject("Log harvest of ".base_url());
+				$this->CI->email->message($message);
+
+				$this->CI->email->send();
+			}
 		}
 	}
 }
