@@ -134,10 +134,11 @@ class Error_Notifier {
 
 		$colorize = $this->CI->config->item('colorize', 'error_notifier');
 		$shorten_paths = $this->CI->config->item('shorten_paths', 'error_notifier');
+		$message = '';
 		
 		if (!empty($log_lines)) {
 
-			$message = '';
+			
 			$message = '<div style="display:block;padding:4px;margin:0;white-space: pre-wrap;;">';
 			foreach ($log_lines as $line) {
 				if (strlen($line[2]) > 1000) $line[2] = substr($line[2],0,1000);
@@ -170,8 +171,6 @@ class Error_Notifier {
 
 		} elseif ($this->CI->config->item('send_empty', 'error_notifier')) {
 			$message = 'No new matched log entries collected';
-		} else {
-			$message = false;
 		}
 
 		if ($message) {
