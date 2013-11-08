@@ -28,6 +28,9 @@ readability is one of the most important aspects of these mails!
 ## shorten_paths
 Trim the base path of CI from all paths for shorter messages. The full paths are always available in the real log file.
 
+## plain
+Send all messages without html tags
+
 ## CI v1.x installation
 
 For old Codegniter you should install this spark manually:
@@ -37,8 +40,11 @@ For old Codegniter you should install this spark manually:
     $autoload['libraries'] = array('error_notifier');
 
 2) put error_notifier.php (library) into your application libraries folder
+
 3) put error_notifier.php (config) into your application config folder
+
 4) set up a controller (see below)
+
 
 ## Usage
 Set up a controller something like this:
