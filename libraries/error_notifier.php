@@ -13,11 +13,8 @@ class Error_Notifier {
 		$this->CI = &get_instance();
 		$this->CI->config->load('error_notifier', true);
 
-		if ($this->CI->config->item('state_file', 'error_notifier')) {
-			$this->state_file = $this->CI->config->item('state_file', 'error_notifier');
-		} else {
-			$this->state_file = APPPATH.'logs/.notifier_state';
-		}
+		$this->state_file = ($this->CI->config->item('log_path')).".notifier_state";
+		
 	}
 
 	/**
@@ -76,14 +73,13 @@ class Error_Notifier {
 
 		$this->set_last_summary($now);
 
-		echo 'Showing logs between '.date('Y-m-d H:i:s', $last_summary).' and '.date('Y-m-d H:i:s', $now)."\n";
+		echo 'Sending logs between <b>'.date('Y-m-d H:i:s', $last_summary).'</b> and <b>'.date('Y-m-d H:i:s', $now)."</b>\n";
 
 		//Read all logs since last time
 		$log_lines		= array();
 		while ($current_date <= $now) {
-			echo date('Y-m-d H:i:s', $current_date)."\n";
 
-			$current_log	= APPPATH.'logs/log-'.date('Y-m-d', $current_date).'.php';
+			$current_log = ($this->CI->config->item('log_path')).'log-'.date('Y-m-d', $current_date).'.php';
 			if (file_exists($current_log)) {
 				$log	= file_get_contents($current_log);
 				$lines	= preg_split('/^([A-z0-9]+)\s-\s([0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2})/ism', $log, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -131,15 +127,21 @@ class Error_Notifier {
 	 */
 	public function send() {
 		$log_lines = $this->collect_logs();
-
+		
 		$colorize = $this->CI->config->item('colorize', 'error_notifier');
+		$plain = $this->CI->config->item('plain', 'error_notifier');
 		$shorten_paths = $this->CI->config->item('shorten_paths', 'error_notifier');
 		$message = '';
+		$new_line = "\r\n\r\n";
 		
 		if (!empty($log_lines)) {
 
+			//Head part
+			if($plain == false) {
+				$message = '<div style="display:block;padding:4px;margin:0;white-space: pre-wrap;;">';
+			}			
 			
-			$message = '<div style="display:block;padding:4px;margin:0;white-space: pre-wrap;;">';
+			//Body
 			foreach ($log_lines as $line) {
 				if (strlen($line[2]) > 1000) $line[2] = substr($line[2],0,1000);
 
@@ -147,10 +149,10 @@ class Error_Notifier {
 				if ($colorize) {
 					$message .= '<span style="color:'.$this->level_colors[$line[0]].'">'.$line[0].'</span>';
 				} else {
-					$message .= $line[0];
+					$message .= $line[0].($plain == true ? $new_line : "");
 				}
 
-				$message .= ' '.$line[1].' '.$line[2].'<br/>';
+				$message .= ' '.$line[1].' '.$line[2].($plain == true ? $new_line.$new_line : "<br/>");
 			}
 
 			//Make "[Repeated X times]" text a bit brighter
@@ -164,10 +166,10 @@ class Error_Notifier {
 				$message = str_replace($baseURL."/", "", $message);
 			}
 
-
-
-			$message .= '</div>';
-
+			//Bottom part
+			if($plain == false) {
+				$message .= '</div>';
+			}
 
 		} elseif ($this->CI->config->item('send_empty', 'error_notifier')) {
 			$message = 'No new matched log entries collected';
@@ -177,6 +179,7 @@ class Error_Notifier {
 			$sender_email	= $this->CI->config->item('sender_email', 'error_notifier');
 			$sender_name	= $this->CI->config->item('sender_name', 'error_notifier');
 			$recipient		= $this->CI->config->item('recipient', 'error_notifier');
+			$base_url = $this->CI->config->item('base_url');			
 
 			if($this->CI->config->item('postmark', 'error_notifier')) {
 				
@@ -185,7 +188,7 @@ class Error_Notifier {
 				$this->CI->postmark->from($sender_email, $sender_name);
 				$this->CI->postmark->to($recipient);
 
-				$this->CI->postmark->subject("Log harvest of ".base_url());
+				$this->CI->postmark->subject("Log harvest of ".$base_url);
 				$this->CI->postmark->message($message);
 
 				$this->CI->postmark->send();
@@ -197,7 +200,7 @@ class Error_Notifier {
 				$this->CI->email->from($sender_email, $sender_name);
 				$this->CI->email->to($recipient);
 
-				$this->CI->email->subject("Log harvest of ".base_url());
+				$this->CI->email->subject("Log harvest of ".$base_url);
 				$this->CI->email->message($message);
 
 				$this->CI->email->send();

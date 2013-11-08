@@ -42,5 +42,10 @@ $config['postmark']    = true;
  */
 $config['log_threshold'] = 4;
 
+/**
+ * Send messages in plain format 
+ */
+$config['plain'] = true;
+
 /* End of file error_notifier.php */
 /* Location: ./application/config/error_notifier.php */
