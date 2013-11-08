@@ -13,7 +13,12 @@ class Error_Notifier {
 		$this->CI = &get_instance();
 		$this->CI->config->load('error_notifier', true);
 
-		$this->state_file = ($this->CI->config->item('log_path')).".notifier_state";
+		$this->state_file = $this->CI->config->item('log_path');
+		if ($this->CI->config->item('state_file', 'error_notifier')) {
+       		$this->state_file .= $this->CI->config->item('state_file', 'error_notifier');
+     	} else {
+       		$this->state_file .= ".notifier_state";
+     	}		
 		
 	}
 

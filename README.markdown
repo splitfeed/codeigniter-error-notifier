@@ -28,6 +28,18 @@ readability is one of the most important aspects of these mails!
 ## shorten_paths
 Trim the base path of CI from all paths for shorter messages. The full paths are always available in the real log file.
 
+## CI v1.x installation
+
+For old Codegniter you should install this spark manually:
+
+1) add error_notifier into autoload.php in your application config folder like:
+
+    $autoload['libraries'] = array('error_notifier');
+
+2) put error_notifier.php (library) into your application libraries folder
+3) put error_notifier.php (config) into your application config folder
+4) set up a controller (see below)
+
 ## Usage
 Set up a controller something like this:
 
@@ -48,10 +60,22 @@ Using with postmark spark:
         }
     }
 
+For CI v1.x a controller will be like this:
+
+    class Cronjob extends CI_Controller {
+        public function send_logs() {
+            $this->error_notifier->send();
+        }
+    }    
+
 Then visit it with a browser to make sure it works, then setup a cron job on your server to run it continuously.
 
 
 ## Changes
+### 0.0.5
+* Added plain option to send non html messages
+* Added compatibility with log_path option from main CI config file
+
 ### 0.0.4
 * Added colorize option for coloring the mail
 * Added shorten_paths option for trimming base path from all errors since it's always the same anyway
